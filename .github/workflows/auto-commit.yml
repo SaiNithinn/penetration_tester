@@ -13,8 +13,8 @@ jobs:
 
     - name: Set up Git user
       run: |
-        git config --global user.name "Auto Commit Bot"
-        git config --global user.email "autocommit@github.com"
+        git config --global user.name "Nithin"
+        git config --global user.email "sainithinreddy71@gmail.com"
 
     - name: Generate commits for Pentester pattern
       run: |
