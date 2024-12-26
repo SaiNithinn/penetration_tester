@@ -1,0 +1,60 @@
+name: GitHub Auto Commit - Pentester Pattern
+
+on:
+  workflow_dispatch:
+
+jobs:
+  auto-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Git user
+      run: |
+        git config --global user.name "Auto Commit Bot"
+        git config --global user.email "autocommit@github.com"
+
+    - name: Generate commits for Pentester pattern
+      run: |
+        cat << 'EOF' > script.py
+        import os
+        from datetime import datetime, timedelta
+
+        # Define the "PENTESTER" pattern (9 rows for letters, 7 columns for days)
+        PATTERN = [
+            [0, 1, 1, 1, 1, 1, 0],  # P
+            [0, 1, 0, 0, 1, 0, 0],  # E
+            [0, 1, 1, 1, 1, 0, 0],  # N
+            [0, 1, 0, 0, 1, 0, 0],  # T
+            [0, 1, 1, 1, 1, 0, 0],  # E
+            [0, 1, 0, 0, 1, 0, 0],  # S
+            [0, 1, 1, 1, 1, 1, 0],  # T
+            [0, 1, 0, 0, 1, 0, 0],  # E
+            [0, 1, 1, 1, 1, 1, 0],  # R
+        ]
+
+        REPO_DIR = "."
+        START_DATE = datetime(2025, 1, 1)
+
+        current_date = START_DATE
+        for week in range(52):  # Loop through 52 weeks
+            for day in range(7):  # Loop through 7 days in each week
+                for row in PATTERN:  # Loop through each row in the pattern
+                    if row[day] == 1:  # Commit only if pattern has a "1"
+                        date_str = current_date.strftime("%Y-%m-%dT12:00:00")
+                        os.environ["GIT_COMMITTER_DATE"] = date_str
+                        os.environ["GIT_AUTHOR_DATE"] = date_str
+
+                        with open("README.md", "a") as f:
+                            f.write(f"Commit on {date_str}\n")
+                        os.system("git add README.md")
+                        os.system(f"git commit -m \"Commit on {date_str}\"")
+                current_date += timedelta(days=1)  # Increment day only after processing all rows
+        EOF
+        python3 script.py
+
+    - name: Push changes
+      run: |
+        git push
